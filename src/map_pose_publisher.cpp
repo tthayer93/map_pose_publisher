@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <tf/transform_listener.h>
 
 int main(int argc, char** argv){
@@ -8,7 +8,7 @@ int main(int argc, char** argv){
     ros::NodeHandle nh;
     ros::NodeHandle nh_private("~");
     tf::TransformListener* tf_listener = new tf::TransformListener();
-    ros::Publisher pub_pose = nh.advertise<geometry_msgs::PoseStamped>("/map_pose", 1000);
+    ros::Publisher pub_pose = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/map_pose", 1000);
     // parameters
     float publish_rate;
     nh_private.param<float>("publish_rate", publish_rate, 1.0);
@@ -19,7 +19,7 @@ int main(int argc, char** argv){
     // looping
     ros::Rate rate(publish_rate);
     tf::StampedTransform transform;
-    geometry_msgs::PoseStamped out_pose;
+    geometry_msgs::PoseWithCovarianceStamped out_pose;
     unsigned int seq = 0;
     while(nh.ok()){
         rate.sleep();
@@ -34,13 +34,13 @@ int main(int argc, char** argv){
         out_pose.header.seq = ++seq;
         out_pose.header.stamp = transform.stamp_;
         out_pose.header.frame_id = transform.frame_id_;
-        out_pose.pose.position.x = transform.getOrigin().getX();
-        out_pose.pose.position.y = transform.getOrigin().getY();
-        out_pose.pose.position.z = transform.getOrigin().getZ();
-        out_pose.pose.orientation.x = transform.getRotation().getX();
-        out_pose.pose.orientation.y = transform.getRotation().getY();
-        out_pose.pose.orientation.z = transform.getRotation().getZ();
-        out_pose.pose.orientation.w = transform.getRotation().getW();
+        out_pose.pose.pose.position.x = transform.getOrigin().getX();
+        out_pose.pose.pose.position.y = transform.getOrigin().getY();
+        out_pose.pose.pose.position.z = transform.getOrigin().getZ();
+        out_pose.pose.pose.orientation.x = transform.getRotation().getX();
+        out_pose.pose.pose.orientation.y = transform.getRotation().getY();
+        out_pose.pose.pose.orientation.z = transform.getRotation().getZ();
+        out_pose.pose.pose.orientation.w = transform.getRotation().getW();
         // publish
         pub_pose.publish(out_pose);
     }
